@@ -1,0 +1,166 @@
+---
+title: "Getting Started with watershedtools"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with watershedtools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(watershedtools)
+```
+
+## Overview
+
+**watershedtools** provides a focused set of hydrologic analysis utilities
+built on top of the NHDPlus data model and the `sf` spatial framework.
+Core capabilities include:
+- **HUC validation** — check and manipulate hydrologic unit codes
+- **Watershed delineation** — retrieve drainage basin boundaries via NLDI
+- **Stream tracing** — walk upstream or downstream through a flowline network
+- **Pour point snapping** — move points onto the nearest stream reach
+- **Spatial overlay** — join features (sites, permits, etc.) to watershed polygons
+
+The package ships with sample data for **Elkhorn Creek, Kentucky** — a
+real watershed in the Kentucky River basin (HUC8 05100205) — so every
+example can run without an internet connection.
+
+## Installation
+
+```{r, eval = FALSE}
+# From CRAN (when available)
+install.packages("watershedtools")
+
+# Development version
+# install.packages("pak")
+pak::pak("chrislyonsKY/watershedtools")
+```
+
+## Loading Sample Data
+
+The package bundles three GeoJSON files covering Elkhorn Creek, KY:
+
+```{r load-data}
+# NHDPlus-style flowline network (7 segments)
+flowlines <- sf::st_read(
+  system.file("extdata", "elkhorn_flowlines.geojson", package = "watershedtools"),
+  quiet = TRUE
+)
+
+# Watershed basin boundary (HUC8 05100205)
+basin <- sf::st_read(
+  system.file("extdata", "elkhorn_basin.geojson", package = "watershedtools"),
+  quiet = TRUE
+)
+
+# USGS gages and KPDES monitoring sites
+sites <- sf::st_read(
+  system.file("extdata", "elkhorn_sites.geojson", package = "watershedtools"),
+  quiet = TRUE
+)
+```
+
+## 1 — Validate HUC Codes
+
+HUC codes must be stored as character strings to preserve leading zeros.
+`validate_huc()` checks length and digit content:
+
+```{r huc-validate}
+# Kentucky watershed HUCs
+hucs <- c("05", "0510", "05100205", "051002050101")
+validate_huc(hucs)
+
+# Common mistakes
+validate_huc(c("5", "abc", "0510020"))
+```
+
+Use `huc_level()` and `parent_huc()` for hierarchy navigation:
+
+```{r huc-hierarchy}
+huc_level(c("05", "0510", "05100205"))
+
+# Get the HUC4 parent of a HUC8
+parent_huc("05100205", level = 4)
+```
+
+## 2 — Trace Upstream and Downstream
+
+The tracing functions walk through a local flowline network using the
+NHDPlus `hydroseq` / `dnhydroseq` topology:
+
+```{r trace}
+# Everything upstream of Elkhorn Creek main stem (COMID 9734460)
+upstream <- trace_upstream(flowlines, comid = 9734460)
+nrow(upstream)
+
+# Follow North Elkhorn Creek downstream to the mouth
+downstream <- trace_downstream(flowlines, comid = 9734444)
+downstream$gnis_name
+```
+
+```{r plot-trace, fig.width = 6, fig.height = 4}
+plot(sf::st_geometry(flowlines), col = "grey70", lwd = 1,
+     main = "Downstream from N. Elkhorn headwater")
+plot(sf::st_geometry(downstream), col = "tomato", lwd = 2.5, add = TRUE)
+```
+
+## 3 — Snap a Pour Point
+
+Place a point near a stream and snap it onto the nearest flowline:
+
+```{r snap}
+pt <- sf::st_sf(
+  geometry = sf::st_sfc(sf::st_point(c(-84.68, 38.155)), crs = 4326)
+)
+snapped <- snap_pour_point(pt, flowlines)
+snapped[, c("comid", "gnis_name", "snap_distance")]
+```
+
+```{r plot-snap, fig.width = 6, fig.height = 4}
+plot(sf::st_geometry(flowlines), col = "steelblue", lwd = 2,
+     main = "Pour point snapping")
+plot(sf::st_geometry(pt), add = TRUE, col = "red", pch = 16, cex = 1.5)
+plot(sf::st_geometry(snapped), add = TRUE, col = "green3", pch = 16, cex = 1.5)
+legend("topright", legend = c("Original", "Snapped"),
+       col = c("red", "green3"), pch = 16)
+```
+
+## 4 — Overlay Features with Watersheds
+
+Determine which monitoring sites fall inside the Elkhorn Creek basin:
+
+```{r overlay}
+result <- overlay_features(sites, basin)
+result[, c("site_id", "name", "huc8")]
+```
+
+## 5 — Delineate a Watershed (Network)
+
+`get_watershed()` calls the NLDI web service to retrieve a basin boundary.
+This requires the `nhdplusTools` package and an internet connection:
+
+```{r watershed-delineate, eval = FALSE}
+# Delineate the watershed for Elkhorn Creek at Frankfort
+basin_live <- get_watershed(comid = 9734460)
+plot(sf::st_geometry(basin_live), col = "lightblue", border = "steelblue")
+```
+
+## Real-World Data Sources
+
+The `examples/` directory in this repository includes scripts demonstrating
+integration with production data sources:
+
+| Script | Data Source | Description |
+|--------|-------------|-------------|
+| `ky_watershed_analysis.R` | NHDPlus / NLDI | Full watershed analysis for Elkhorn Creek |
+| `usgs_gage_delineation.R` | USGS NWIS | Delineate watersheds for Kentucky USGS gages |
+| `permit_watershed_overlay.R` | KPDES / EPA ECHO | Overlay discharge permits with HUC boundaries |
+
+See also the [USGS National Hydrography page](https://www.usgs.gov/national-hydrography)
+and the [NLDI API](https://labs.waterdata.usgs.gov/api/nldi/) for the
+upstream data services.

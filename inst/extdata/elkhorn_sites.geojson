@@ -1,0 +1,70 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "USGS-03287500",
+        "name": "Elkhorn Creek at Frankfort, KY",
+        "type": "gage",
+        "source": "USGS NWIS"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.84, 38.19]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "USGS-03289000",
+        "name": "North Elkhorn Creek near Georgetown, KY",
+        "type": "gage",
+        "source": "USGS NWIS"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.55, 38.14]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "USGS-03289500",
+        "name": "South Elkhorn Creek near Lexington, KY",
+        "type": "gage",
+        "source": "USGS NWIS"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.52, 38.04]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "KY0020150",
+        "name": "Frankfort WWTP",
+        "type": "npdes",
+        "source": "KPDES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.86, 38.195]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "KY0021474",
+        "name": "Georgetown WWTP",
+        "type": "npdes",
+        "source": "KPDES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.56, 38.13]
+      }
+    }
+  ]
+}

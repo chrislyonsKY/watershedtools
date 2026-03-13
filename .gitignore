@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+inst/doc
+*.Rcheck/
+*.tar.gz
+.claude/
+CLAUDE.md
+ai-dev/

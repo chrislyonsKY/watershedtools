@@ -1,0 +1,24 @@
+Package: watershedtools
+Title: Hydrologic Analysis Utilities Built on NHDPlus
+Version: 1.0.0
+Authors@R:
+    person("Chris", "Lyons", , "chris.lyons@ky.gov",
+           role = c("aut", "cre"))
+Description: Provides HUC code validation and hierarchy resolution, watershed boundary retrieval, upstream and downstream stream tracing via 'NHDPlus' flow direction, pour point snapping, and feature-watershed spatial overlay. Built on 'nhdplusTools' for data access and 'sf' for spatial operations.
+License: GPL (>= 3)
+URL: https://github.com/chrislyonsKY/watershedtools
+BugReports: https://github.com/chrislyonsKY/watershedtools/issues
+Depends: R (>= 4.1.0)
+Imports:
+    sf
+Suggests:
+    nhdplusTools,
+    dplyr,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
+VignetteBuilder: knitr
