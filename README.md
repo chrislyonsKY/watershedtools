@@ -1,4 +1,4 @@
-# watershedtools <img src="man/figures/logo.svg" align="right" height="139" alt="" />
+# watershedtools <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 [![R-CMD-check](https://github.com/chrislyonsKY/watershedtools/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/chrislyonsKY/watershedtools/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/watershedtools)](https://CRAN.R-project.org/package=watershedtools)
